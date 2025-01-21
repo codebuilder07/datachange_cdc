@@ -1,6 +1,3 @@
-Here's a draft for your README file that documents a Change Data Capture (CDC) setup using Kafka, Zookeeper, Control Center, Debezium, PostgreSQL, and Debezium UI with Docker:
-
----
 
 # Change Data Capture (CDC) Using Kafka, Debezium, and PostgreSQL
 
