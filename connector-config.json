@@ -1,0 +1,17 @@
+{
+    "name": "postgres-connector",
+    "config": {
+      "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+      "database.hostname": "postgres",
+      "database.port": "5432",
+      "database.user": "postgres",
+      "database.password": "postgres",
+      "database.dbname": "financial_db",
+      "database.server.name": "financial",
+      "database.history.kafka.bootstrap.servers": "broker:29092",
+      "topic.prefix": "mydb","decimal.handling.mode": "string",
+      "plugin.name": "pgoutput",
+      "slot.name": "debezium_slot"
+    }
+  }
+  
