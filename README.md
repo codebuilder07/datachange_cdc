@@ -47,8 +47,9 @@ The entire stack is deployed using Docker for simplicity and portability.
 
 3. **Verify the Services**
    - Kafka and Zookeeper are running.
-   - Kafka Control Center is accessible at `http://localhost:<control_center_port>`.
-   - Debezium UI is accessible at `http://localhost:<debezium_ui_port>`.
+   - Kafka Control Center is accessible at `http://localhost:9021`.
+   - Debezium UI is accessible at `http://localhost:8080`.
+   - Debezium Connect API is accessible at `http://localhost:8093`.
 
 4. **Configure the PostgreSQL Database**
    - Set up a PostgreSQL database and enable logical replication.
@@ -76,12 +77,12 @@ The entire stack is deployed using Docker for simplicity and portability.
 
 | Service             | Description                                   | URL                           |
 |---------------------|-----------------------------------------------|-------------------------------|
-| **Kafka**           | Event streaming platform                     | N/A                           |
-| **Zookeeper**       | Kafka cluster manager                        | N/A                           |
-| **Kafka Control Center** | Kafka monitoring and management UI       | `http://localhost:<port>`     |
-| **Debezium**        | Change Data Capture tool                     | N/A                           |
-| **PostgreSQL**      | Relational database                          | `jdbc:postgresql://<host>:<port>/<db>` |
-| **Debezium UI**     | Manage Debezium connectors                   | `http://localhost:<port>`     |
+| **Kafka**           | Event streaming platform                     | `broker:29092` (internal), `localhost:9092` (external) |
+| **Zookeeper**       | Kafka cluster manager                        | `localhost:2181`              |
+| **Kafka Control Center** | Kafka monitoring and management UI       | `http://localhost:9021`       |
+| **Debezium Connect** | Change Data Capture tool                    | `http://localhost:8093`       |
+| **PostgreSQL**      | Relational database                          | `localhost:5432` (DB: `financial_db`) |
+| **Debezium UI**     | Manage Debezium connectors                   | `http://localhost:8080`       |
 
 ---
 
@@ -147,6 +148,38 @@ services:
     ports:
       - "8084:8084"
 ```
+
+---
+
+## Troubleshooting
+
+### Debezium UI Server Error
+
+If you encounter a server error in the Debezium UI when viewing predefined connectors, this is typically caused by missing or misconfigured volume mounts. 
+
+**Solution**: The docker-compose.yml has been configured to work without custom connector directories. The Debezium UI will use its built-in connector types.
+
+If you need to add custom connector types or connector JARs:
+1. Create the directories: `connector-configs/` and `connectors/`
+2. Add the volume mounts back to the `debezium-ui` service in docker-compose.yml:
+   ```yaml
+   volumes:
+     - ./connector-configs:/opt/debezium-ui/connector-types
+     - ./connectors:/kafka/connect
+   ```
+
+### Service Health Checks
+
+All services have health checks configured. If a service fails to start:
+1. Check logs: `docker compose logs <service-name>`
+2. Verify all dependent services are healthy
+3. Wait for the health check grace period (varies by service)
+
+### Common Issues
+
+- **PostgreSQL Connection Issues**: Ensure `wal_level=logical` is set in PostgreSQL configuration
+- **Kafka Not Ready**: Wait for Zookeeper to be healthy before Kafka starts
+- **Debezium UI Not Loading**: Ensure the Debezium Connect service is healthy at `http://debezium:8083`
 
 ---
 
